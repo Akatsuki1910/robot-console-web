@@ -3,7 +3,9 @@
     Blocks.block
     div.game
       Game
-    div aaa
+    div.other
+      a(href="https://twitter.com/teruru33550336" target="_blank" aria-label="twitter")
+        IconTwitter.icon
 </template>
 
 <script lang="ts">
@@ -40,5 +42,21 @@ export default class Index extends Vue {}
   width: 100%;
   height: 100%;
   // min-height: 400px;
+}
+
+.other {
+  grid-area: other;
+  width: 100%;
+  height: 100%;
+}
+
+.icon {
+  font-size: 3rem;
+  transition: all 0.3s;
+  margin: 5px;
+  color: blue;
+  &:hover {
+    transform: scale(1.2);
+  }
 }
 </style>

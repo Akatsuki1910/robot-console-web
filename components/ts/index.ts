@@ -8,6 +8,7 @@ export default class RobotConsole {
   private stageMaster: PIXI.Container
   private bs: BlockStage
   private renderer: PIXI.AbstractRenderer
+  private anim: number | undefined
 
   constructor(ele: HTMLCanvasElement) {
     const width = ele.clientWidth
@@ -40,6 +41,7 @@ export default class RobotConsole {
     obj: Point[],
   ) {
     this.bs.setConf(stage, start, dir, goal, obj)
+    this.render()
   }
 
   public render() {
@@ -47,14 +49,28 @@ export default class RobotConsole {
   }
 
   public start(blocks: BlockConf[]) {
+    if (this.anim !== undefined) cancelAnimationFrame(this.anim)
+
     this.bs.setBlocks(blocks)
+    this.render()
     this.time = 0
+
     this.animation()
   }
 
   private animation() {
-    this.bs.animation(this.time)
-    this.time++
-    requestAnimationFrame(this.animation.bind(this))
+    if (this.bs.checkGoal()) {
+      window.alert('goal')
+      if (this.anim !== undefined) cancelAnimationFrame(this.anim)
+    }
+
+    if (!this.bs.checkEnd()) {
+      this.anim = requestAnimationFrame(this.animation.bind(this))
+      this.bs.animation(this.time)
+      this.time++
+    } else {
+      this.bs.reset()
+    }
+    this.render()
   }
 }

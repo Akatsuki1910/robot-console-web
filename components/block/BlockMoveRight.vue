@@ -1,11 +1,11 @@
 <template lang="pug">
-  div.border(:style="msStyle")  forend
+  div.border(:style="msStyle") BlockMoveRight
 </template>
 
 <script lang="ts">
 import { Vue, Component, PropSync } from 'nuxt-property-decorator'
 @Component({})
-export default class BlockForEnd extends Vue {
+export default class BlockMoveRight extends Vue {
   @PropSync('marginSize', { type: Number, required: true })
   ms?: number
 
@@ -18,6 +18,6 @@ export default class BlockForEnd extends Vue {
 <style lang="scss" scoped>
 .border {
   @include block-style;
-  @include for-block-color;
+  @include move-block-color;
 }
 </style>

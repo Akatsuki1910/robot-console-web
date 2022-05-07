@@ -1,4 +1,10 @@
 export interface BlockConf {
-  block: string
+  block:
+    | 'BlockFor'
+    | 'BlockForEnd'
+    | 'BlockMoveFront'
+    | 'BlockMoveBack'
+    | 'BlockMoveRight'
+    | 'BlockMoveLeft'
   forNum: number
 }

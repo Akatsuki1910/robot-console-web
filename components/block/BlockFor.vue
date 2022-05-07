@@ -1,6 +1,6 @@
 <template lang="pug">
   div.border(:style="[msStyle,nnStyle]") for
-    input(type="number" value=0 v-model="forNum").number-input
+    input(type="number" value=1 min=1 v-model="forNum").number-input
 </template>
 
 <script lang="ts">
@@ -13,7 +13,7 @@ export default class BlockFor extends Vue {
   @PropSync('nestNum', { type: Number, required: true })
   nn?: number
 
-  forNum = 0
+  forNum = 1
 
   @Watch('forNum')
   updateForNum() {
@@ -24,7 +24,7 @@ export default class BlockFor extends Vue {
   changeForNum() {}
 
   get msStyle() {
-    return { '--ml': this.ms }
+    return { 'margin-left': `${this.ms}px` }
   }
 
   get nnStyle() {
@@ -35,18 +35,15 @@ export default class BlockFor extends Vue {
 
 <style lang="scss" scoped>
 .border {
+  @include block-style;
+  @include for-block-color;
+
   position: relative;
-  width: 100px;
-  height: 50px;
-  margin-left: calc(1px * var(--ml));
-  border-color: blue;
-  border-style: solid;
-  border-width: 1px;
 
   &::after {
     position: absolute;
     bottom: calc(-1px * var(--ns));
-    left: 0;
+    left: -1px;
     width: 10px;
     height: calc(1px * var(--ns));
     content: '';
@@ -55,6 +52,7 @@ export default class BlockFor extends Vue {
 }
 
 .number-input {
+  margin-left: 1rem;
   width: 5rem;
 }
 </style>

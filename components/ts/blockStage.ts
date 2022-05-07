@@ -12,6 +12,26 @@ export default class BlockStage extends SceneInit {
   private height: number
   private blocks: BlockConf[] = []
 
+  private sta?: PIXI.Graphics
+  private goa?: PIXI.Graphics
+  private obj?: PIXI.Graphics
+
+  private nowPos: Point = { x: 0, y: 0 }
+  private startDir: number = 0
+  private goalPos: Point = { x: 0, y: 0 }
+  private objPos: Point[] = []
+  private stageSize: Size = { x: 0, y: 0 }
+
+  private startPos: Point = { x: 0, y: 0 }
+
+  private blockI: number = 0
+  private nowBlock?: BlockConf['block']
+  private forStack: { num: number; index: number }[] = []
+  private dir: number = 0
+
+  private isEnd: boolean = false
+  private isGoal: boolean = false
+
   constructor(width: number, height: number) {
     super()
 
@@ -27,8 +47,8 @@ export default class BlockStage extends SceneInit {
 
   private getPosition(pos: Point) {
     return {
-      x: this.cell.x + this.cellSize * (pos.x - 1 + 0.5),
-      y: this.cell.y + this.cellSize * (pos.y - 1 + 0.5),
+      x: this.cell.x + this.cellSize * (pos.x + 0.5),
+      y: this.cell.y + this.cellSize * (pos.y + 0.5),
     }
   }
 
@@ -57,50 +77,50 @@ export default class BlockStage extends SceneInit {
   }
 
   private startObj(start: Point, dir: number) {
-    const sta = new PIXI.Graphics()
+    this.sta = new PIXI.Graphics()
 
     const staWidth = this.cellSize - 5
     const staHeight = (staWidth / 2) * Math.sqrt(3)
 
-    sta.beginFill(0xff0000, 1)
-    sta.lineTo(0, 0)
-    sta.lineTo(staWidth / 2, staHeight)
-    sta.lineTo(-staWidth / 2, staHeight)
-    sta.endFill()
+    this.sta.beginFill(0xff0000, 1)
+    this.sta.lineTo(0, 0)
+    this.sta.lineTo(staWidth / 2, staHeight)
+    this.sta.lineTo(-staWidth / 2, staHeight)
+    this.sta.endFill()
 
-    sta.pivot.y = staHeight / 2
+    this.sta.pivot.y = staHeight / 2
 
-    sta.x = this.getPosition(start).x
-    sta.y = this.getPosition(start).y
-    sta.rotation = (Math.PI / 2) * dir
-    this.stage.addChild(sta)
+    this.sta.x = this.getPosition(start).x
+    this.sta.y = this.getPosition(start).y
+    this.sta.rotation = (Math.PI / 2) * dir
+    this.stage.addChild(this.sta)
   }
 
   private goalObj(goal: Point) {
-    const wh = this.cellSize - 5
-    const goa = new PIXI.Graphics()
+    const wh = this.cellSize - 20
+    this.goa = new PIXI.Graphics()
       .beginFill(0x0000ff, 1)
       .drawRect(0, 0, wh, wh)
       .endFill()
-    goa.pivot.x = wh / 2
-    goa.pivot.y = wh / 2
-    goa.x = this.getPosition(goal).x
-    goa.y = this.getPosition(goal).y
-    this.stage.addChild(goa)
+    this.goa.pivot.x = wh / 2
+    this.goa.pivot.y = wh / 2
+    this.goa.x = this.getPosition(goal).x
+    this.goa.y = this.getPosition(goal).y
+    this.stage.addChild(this.goa)
   }
 
   private objObj(obj: Point[]) {
     for (const o of obj) {
       const wh = this.cellSize - 5
-      const goa = new PIXI.Graphics()
+      this.obj = new PIXI.Graphics()
         .beginFill(0x00ff00, 1)
         .drawRect(0, 0, wh, wh)
         .endFill()
-      goa.pivot.x = wh / 2
-      goa.pivot.y = wh / 2
-      goa.x = this.getPosition(o).x
-      goa.y = this.getPosition(o).y
-      this.stage.addChild(goa)
+      this.obj.pivot.x = wh / 2
+      this.obj.pivot.y = wh / 2
+      this.obj.x = this.getPosition(o).x
+      this.obj.y = this.getPosition(o).y
+      this.stage.addChild(this.obj)
     }
   }
 
@@ -111,14 +131,165 @@ export default class BlockStage extends SceneInit {
     goal: Point,
     obj: Point[],
   ) {
+    this.startPos = { x: start.x, y: start.y }
+    this.startDir = dir
+    this.goalPos = { x: goal.x, y: goal.y }
+    for (const o of obj) {
+      this.objPos.push({ x: o.x, y: o.y })
+    }
+    this.stageSize = stage
+
     this.setCell(stage)
     this.startObj(start, dir)
     this.goalObj(goal)
     this.objObj(obj)
   }
 
+  private nextBlock() {
+    if (this.blockI === this.blocks.length) {
+      this.nowBlock = undefined
+      return false
+    }
+    this.nowBlock = this.blocks[this.blockI].block
+
+    if (this.nowBlock === 'BlockForEnd') {
+      this.forStack[this.forStack.length - 1].num--
+      if (this.forStack[this.forStack.length - 1].num === 0) {
+        this.forStack.pop()
+        this.blockI++
+        this.nowBlock = this.blocks[this.blockI].block
+        this.blockI++
+      } else {
+        this.blockI = this.forStack[this.forStack.length - 1].index + 1
+        this.nowBlock = this.blocks[this.blockI].block
+        this.blockI++
+      }
+    } else if (this.nowBlock === 'BlockFor') {
+      this.forStack.push({
+        num: this.blocks[this.blockI].forNum,
+        index: this.blockI,
+      })
+      this.blockI++
+      this.nowBlock = this.blocks[this.blockI].block
+      this.blockI++
+    } else {
+      this.blockI++
+    }
+
+    return true
+  }
+
+  private move() {
+    if (this.nowBlock === 'BlockMoveFront') {
+      if (this.dir === 0) this.go(0)
+      if (this.dir === 1) this.go(1)
+      if (this.dir === 2) this.go(2)
+      if (this.dir === 3) this.go(3)
+    }
+    if (this.nowBlock === 'BlockMoveBack') {
+      if (this.dir === 0) this.go(2)
+      if (this.dir === 1) this.go(3)
+      if (this.dir === 2) this.go(0)
+      if (this.dir === 3) this.go(1)
+    }
+    if (this.nowBlock === 'BlockMoveRight') {
+      this.dir = this.modu(this.dir + 1, 4)
+    }
+    if (this.nowBlock === 'BlockMoveLeft') {
+      this.dir = this.modu(this.dir - 1, 4)
+    }
+  }
+
+  private modu(a: number, b: number) {
+    return ((a % b) + b) % b
+  }
+
+  private go(dir: number) {
+    if (dir === 0) {
+      while (true) {
+        this.nowPos.y--
+        if (this.nowPos.y <= 0) {
+          this.nowPos.y = 0
+          break
+        }
+
+        let collisionFlag = false
+        for (const o of this.objPos) {
+          if (this.nowPos.x === o.x && this.nowPos.y - 1 === o.y) {
+            collisionFlag = true
+            break
+          }
+        }
+        if (collisionFlag) break
+      }
+    }
+    if (dir === 1) {
+      while (true) {
+        this.nowPos.x++
+        if (this.nowPos.x >= this.stageSize.x - 1) {
+          this.nowPos.x = this.stageSize.x - 1
+          break
+        }
+
+        let collisionFlag = false
+        for (const o of this.objPos) {
+          if (this.nowPos.x + 1 === o.x && this.nowPos.y === o.y) {
+            collisionFlag = true
+            break
+          }
+        }
+        if (collisionFlag) break
+      }
+    }
+    if (dir === 2) {
+      while (true) {
+        this.nowPos.y++
+        if (this.nowPos.y >= this.stageSize.y - 1) {
+          this.nowPos.y = this.stageSize.y - 1
+          break
+        }
+
+        let collisionFlag = false
+        for (const o of this.objPos) {
+          if (this.nowPos.x === o.x && this.nowPos.y + 1 === o.y) {
+            collisionFlag = true
+            break
+          }
+        }
+        if (collisionFlag) break
+      }
+    }
+    if (dir === 3) {
+      while (true) {
+        this.nowPos.x--
+        if (this.nowPos.x <= 0) {
+          this.nowPos.x = 0
+          break
+        }
+
+        let collisionFlag = false
+        for (const o of this.objPos) {
+          if (this.nowPos.x - 1 === o.x && this.nowPos.y === o.y) {
+            collisionFlag = true
+            break
+          }
+        }
+        if (collisionFlag) break
+      }
+    }
+  }
+
+  public checkGoal() {
+    return this.isGoal
+  }
+
+  public checkEnd() {
+    return this.isEnd || this.isGoal
+  }
+
   public setBlocks(blocks: BlockConf[]) {
     this.blocks = blocks
+    this.reset()
   }
 
   public resize(width: number, height: number) {
@@ -126,5 +297,35 @@ export default class BlockStage extends SceneInit {
     this.cell.position.y = height / 2 - (this.cellSize * this.rowNum) / 2
   }
 
-  public animation(_time: number) {}
+  public reset() {
+    this.blockI = 0
+    this.nowBlock = undefined
+    this.forStack = []
+    this.isGoal = false
+    this.isEnd = false
+
+    this.sta!.x = this.getPosition(this.startPos).x
+    this.sta!.y = this.getPosition(this.startPos).y
+    this.dir = this.startDir
+    this.sta!.rotation = (Math.PI / 2) * this.startDir
+    this.nowPos = { x: this.startPos.x, y: this.startPos.y }
+  }
+
+  public animation(time: number) {
+    if (!this.isEnd) {
+      if (time % (60 * (1 / 4)) === 0) {
+        if (this.nextBlock()) {
+          this.move()
+          this.sta!.x = this.getPosition(this.nowPos).x
+          this.sta!.y = this.getPosition(this.nowPos).y
+          this.sta!.rotation = (Math.PI / 2) * this.dir
+          this.isGoal =
+            this.nowPos.x === this.goalPos.x && this.nowPos.y === this.goalPos.y
+        } else {
+          window.alert('ゴールできなかった')
+          this.isEnd = true
+        }
+      }
+    }
+  }
 }

@@ -5,7 +5,10 @@
       component(v-for="(block,i) in blocks" ref="blockCom" @change-for-num="changeForNum" @click.native="blockSelect(i)" :is="block.c" :key="i" :marginSize="block.nest" :nestNum="block.nestNum||0" :class="{highlight:sn(i)}")
       BlockEnd(ref='blockCom')
     div
-      input(type="button" @click="addBlock" value="add block")
+      input(type="button" @click="addFront" value="add front")
+      input(type="button" @click="addBack" value="add back")
+      input(type="button" @click="addRight" value="add right")
+      input(type="button" @click="addLeft" value="add left")
       input(type="button" @click="addFor" value="add for")
       input(type="button" @click="deleteBlock" value="delete block")
 </template>
@@ -19,7 +22,12 @@ import { BlocksStore } from '~/store'
 @Component({})
 export default class Blocks extends Vue {
   @Ref() readonly blockCom!: HTMLElement[]
-  private blocksArr: { c: string; nest: number; nestNum?: number }[] = []
+  private blocksArr: {
+    c: BlockConf['block']
+    nest: number
+    nestNum?: number
+  }[] = []
+
   private selectNum = 0
 
   sn(i: number) {
@@ -79,9 +87,36 @@ export default class Blocks extends Vue {
   }
 
   @NextTick('setStoreBlockCom')
-  addBlock() {
+  addFront() {
     this.blocksArr.splice(this.selectNum, 0, {
-      c: 'BlockMove',
+      c: 'BlockMoveFront',
+      nest: 0,
+    })
+    this.selectNum++
+  }
+
+  @NextTick('setStoreBlockCom')
+  addBack() {
+    this.blocksArr.splice(this.selectNum, 0, {
+      c: 'BlockMoveBack',
+      nest: 0,
+    })
+    this.selectNum++
+  }
+
+  @NextTick('setStoreBlockCom')
+  addRight() {
+    this.blocksArr.splice(this.selectNum, 0, {
+      c: 'BlockMoveRight',
+      nest: 0,
+    })
+    this.selectNum++
+  }
+
+  @NextTick('setStoreBlockCom')
+  addLeft() {
+    this.blocksArr.splice(this.selectNum, 0, {
+      c: 'BlockMoveLeft',
       nest: 0,
     })
     this.selectNum++
@@ -145,7 +180,7 @@ export default class Blocks extends Vue {
 
 <style lang="scss" scoped>
 .highlight {
-  color: yellow;
+  background-color: hsl(60, 100%, 70%) !important;
 }
 
 .block-wrap {

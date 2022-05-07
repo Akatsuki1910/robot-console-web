@@ -1,26 +1,23 @@
 <template lang="pug">
-  div.border(:style="msStyle") move
+  div.border(:style="msStyle") BlockMoveBack
 </template>
 
 <script lang="ts">
 import { Vue, Component, PropSync } from 'nuxt-property-decorator'
 @Component({})
-export default class BlockMove extends Vue {
+export default class BlockMoveBack extends Vue {
   @PropSync('marginSize', { type: Number, required: true })
   ms?: number
 
   get msStyle() {
-    return `margin-left: ${this.ms}px`
+    return { 'margin-left': `${this.ms}px` }
   }
 }
 </script>
 
 <style lang="scss" scoped>
 .border {
-  width: 100px;
-  height: 50px;
-  border-color: red;
-  border-style: solid;
-  border-width: 1px;
+  @include block-style;
+  @include move-block-color;
 }
 </style>

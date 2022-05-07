@@ -16,13 +16,12 @@ export default class Game extends Vue {
 
   mounted() {
     this.d = new RobotConsole(this.block)
-    this.d.setConf({ x: 9, y: 9 }, { x: 5, y: 5 }, 0, { x: 7, y: 8 }, [
-      { x: 2, y: 4 },
-      { x: 3, y: 1 },
-      { x: 7, y: 9 },
-      { x: 8, y: 3 },
+    this.d.setConf({ x: 9, y: 9 }, { x: 4, y: 4 }, 0, { x: 6, y: 7 }, [
+      { x: 1, y: 3 },
+      { x: 2, y: 0 },
+      { x: 6, y: 8 },
+      { x: 7, y: 2 },
     ])
-    this.d.render()
   }
 
   start() {
@@ -36,11 +35,13 @@ export default class Game extends Vue {
   height: 100%;
   width: 100%;
 }
+
 .block-canvas {
   width: 100%;
   max-width: 50vw;
   height: 90%;
   min-height: 400px;
+
   @include screen {
     max-width: 100vmin;
     height: 100vmin;

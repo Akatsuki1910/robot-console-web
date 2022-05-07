@@ -10,10 +10,10 @@ export default class BlockStart extends Vue {}
 
 <style lang="scss" scoped>
 .border {
-  width: 100px;
-  height: 50px;
-  border-color: green;
-  border-style: solid;
-  border-width: 1px;
+  @include block-style;
+
+  border-color: hsl(113, 100%, 50%);
+  background-color: green;
+  color: white;
 }
 </style>
