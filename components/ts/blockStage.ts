@@ -14,7 +14,7 @@ export default class BlockStage extends SceneInit {
 
   private sta?: PIXI.Graphics
   private goa?: PIXI.Graphics
-  private obj?: PIXI.Graphics
+  private obj: PIXI.Graphics[] = []
 
   private nowPos: Point = { x: 0, y: 0 }
   private startDir: number = 0
@@ -76,7 +76,7 @@ export default class BlockStage extends SceneInit {
     this.resize(this.width, this.height)
   }
 
-  private startObj(start: Point, dir: number) {
+  private startObj(dir: number) {
     this.sta = new PIXI.Graphics()
 
     const staWidth = this.cellSize - 5
@@ -89,14 +89,12 @@ export default class BlockStage extends SceneInit {
     this.sta.endFill()
 
     this.sta.pivot.y = staHeight / 2
-
-    this.sta.x = this.getPosition(start).x
-    this.sta.y = this.getPosition(start).y
     this.sta.rotation = (Math.PI / 2) * dir
+
     this.stage.addChild(this.sta)
   }
 
-  private goalObj(goal: Point) {
+  private goalObj() {
     const wh = this.cellSize - 20
     this.goa = new PIXI.Graphics()
       .beginFill(0x0000ff, 1)
@@ -104,23 +102,20 @@ export default class BlockStage extends SceneInit {
       .endFill()
     this.goa.pivot.x = wh / 2
     this.goa.pivot.y = wh / 2
-    this.goa.x = this.getPosition(goal).x
-    this.goa.y = this.getPosition(goal).y
+
     this.stage.addChild(this.goa)
   }
 
   private objObj(obj: Point[]) {
-    for (const o of obj) {
+    for (const i in obj) {
       const wh = this.cellSize - 5
-      this.obj = new PIXI.Graphics()
+      this.obj[i] = new PIXI.Graphics()
         .beginFill(0x00ff00, 1)
         .drawRect(0, 0, wh, wh)
         .endFill()
-      this.obj.pivot.x = wh / 2
-      this.obj.pivot.y = wh / 2
-      this.obj.x = this.getPosition(o).x
-      this.obj.y = this.getPosition(o).y
-      this.stage.addChild(this.obj)
+      this.obj[i].pivot.x = wh / 2
+      this.obj[i].pivot.y = wh / 2
+      this.stage.addChild(this.obj[i])
     }
   }
 
@@ -140,9 +135,11 @@ export default class BlockStage extends SceneInit {
     this.stageSize = stage
 
     this.setCell(stage)
-    this.startObj(start, dir)
-    this.goalObj(goal)
+    this.startObj(dir)
+    this.goalObj()
     this.objObj(obj)
+
+    this.setPosition()
   }
 
   private nextBlock() {
@@ -279,6 +276,24 @@ export default class BlockStage extends SceneInit {
     }
   }
 
+  private setPosition() {
+    if (this.sta) {
+      this.sta.x = this.getPosition(this.startPos).x
+      this.sta.y = this.getPosition(this.startPos).y
+    }
+    if (this.goa) {
+      this.goa.x = this.getPosition(this.goalPos).x
+      this.goa.y = this.getPosition(this.goalPos).y
+    }
+
+    this.objPos.forEach((o, i) => {
+      if (this.obj[i]) {
+        this.obj[i].x = this.getPosition(o).x
+        this.obj[i].y = this.getPosition(o).y
+      }
+    })
+  }
+
   public checkGoal() {
     return this.isGoal
   }
@@ -295,6 +310,7 @@ export default class BlockStage extends SceneInit {
   public resize(width: number, height: number) {
     this.cell.position.x = width / 2 - (this.cellSize * this.colNum) / 2
     this.cell.position.y = height / 2 - (this.cellSize * this.rowNum) / 2
+    this.setPosition()
   }
 
   public reset() {
