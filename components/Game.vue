@@ -8,20 +8,18 @@
 <script lang="ts">
 import { Vue, Component, Ref } from 'nuxt-property-decorator'
 import RobotConsole from './ts/index'
+import createConf from './ts/createConf'
 import { BlocksStore } from '~/store'
+
 @Component({})
 export default class Game extends Vue {
   @Ref() readonly block!: HTMLCanvasElement
   d: RobotConsole | null = null
 
   mounted() {
+    const { stage, start, dir, goal, objArr } = createConf()
     this.d = new RobotConsole(this.block)
-    this.d.setConf({ x: 9, y: 9 }, { x: 4, y: 4 }, 0, { x: 6, y: 7 }, [
-      { x: 1, y: 3 },
-      { x: 2, y: 0 },
-      { x: 6, y: 8 },
-      { x: 7, y: 2 },
-    ])
+    this.d.setConf(stage, start, dir, goal, objArr)
   }
 
   start() {

@@ -55,7 +55,7 @@ export default class BlockStage extends SceneInit {
   private setCell(stage: Size) {
     this.cell = new PIXI.Graphics()
 
-    this.cellSize = 30
+    this.cellSize = 300 / stage.x
     this.colNum = stage.x
     this.rowNum = stage.y
 
@@ -95,7 +95,7 @@ export default class BlockStage extends SceneInit {
   }
 
   private goalObj() {
-    const wh = this.cellSize - 20
+    const wh = this.cellSize - 10
     this.goa = new PIXI.Graphics()
       .beginFill(0x0000ff, 1)
       .drawRect(0, 0, wh, wh)
@@ -135,9 +135,9 @@ export default class BlockStage extends SceneInit {
     this.stageSize = stage
 
     this.setCell(stage)
-    this.startObj(dir)
     this.goalObj()
     this.objObj(obj)
+    this.startObj(dir)
 
     this.setPosition()
   }
@@ -205,6 +205,13 @@ export default class BlockStage extends SceneInit {
     if (dir === 0) {
       while (true) {
         this.nowPos.y--
+        if (
+          this.nowPos.x === this.goalPos.x &&
+          this.nowPos.y === this.goalPos.y
+        ) {
+          this.isGoal = true
+          break
+        }
         if (this.nowPos.y <= 0) {
           this.nowPos.y = 0
           break
@@ -223,6 +230,13 @@ export default class BlockStage extends SceneInit {
     if (dir === 1) {
       while (true) {
         this.nowPos.x++
+        if (
+          this.nowPos.x === this.goalPos.x &&
+          this.nowPos.y === this.goalPos.y
+        ) {
+          this.isGoal = true
+          break
+        }
         if (this.nowPos.x >= this.stageSize.x - 1) {
           this.nowPos.x = this.stageSize.x - 1
           break
@@ -241,6 +255,13 @@ export default class BlockStage extends SceneInit {
     if (dir === 2) {
       while (true) {
         this.nowPos.y++
+        if (
+          this.nowPos.x === this.goalPos.x &&
+          this.nowPos.y === this.goalPos.y
+        ) {
+          this.isGoal = true
+          break
+        }
         if (this.nowPos.y >= this.stageSize.y - 1) {
           this.nowPos.y = this.stageSize.y - 1
           break
@@ -259,6 +280,13 @@ export default class BlockStage extends SceneInit {
     if (dir === 3) {
       while (true) {
         this.nowPos.x--
+        if (
+          this.nowPos.x === this.goalPos.x &&
+          this.nowPos.y === this.goalPos.y
+        ) {
+          this.isGoal = true
+          break
+        }
         if (this.nowPos.x <= 0) {
           this.nowPos.x = 0
           break
@@ -335,8 +363,6 @@ export default class BlockStage extends SceneInit {
           this.sta!.x = this.getPosition(this.nowPos).x
           this.sta!.y = this.getPosition(this.nowPos).y
           this.sta!.rotation = (Math.PI / 2) * this.dir
-          this.isGoal =
-            this.nowPos.x === this.goalPos.x && this.nowPos.y === this.goalPos.y
         } else {
           window.alert('ゴールできなかった')
           this.isEnd = true
