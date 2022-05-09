@@ -336,8 +336,10 @@ export default class BlockStage extends SceneInit {
   }
 
   public resize(width: number, height: number) {
-    this.cell.position.x = width / 2 - (this.cellSize * this.colNum) / 2
-    this.cell.position.y = height / 2 - (this.cellSize * this.rowNum) / 2
+    this.cell.position.x =
+      width / window.devicePixelRatio / 2 - (this.cellSize * this.colNum) / 2
+    this.cell.position.y =
+      height / window.devicePixelRatio / 2 - (this.cellSize * this.rowNum) / 2
     this.setPosition()
   }
 
