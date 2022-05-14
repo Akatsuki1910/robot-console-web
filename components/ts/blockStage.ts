@@ -204,6 +204,15 @@ export default class BlockStage extends SceneInit {
   private go(dir: number) {
     if (dir === 0) {
       while (true) {
+        let collisionFlag = false
+        for (const o of this.objPos) {
+          if (this.nowPos.x === o.x && this.nowPos.y - 1 === o.y) {
+            collisionFlag = true
+            break
+          }
+        }
+        if (collisionFlag) break
+
         this.nowPos.y--
         if (
           this.nowPos.x === this.goalPos.x &&
@@ -216,19 +225,19 @@ export default class BlockStage extends SceneInit {
           this.nowPos.y = 0
           break
         }
-
+      }
+    }
+    if (dir === 1) {
+      while (true) {
         let collisionFlag = false
         for (const o of this.objPos) {
-          if (this.nowPos.x === o.x && this.nowPos.y - 1 === o.y) {
+          if (this.nowPos.x + 1 === o.x && this.nowPos.y === o.y) {
             collisionFlag = true
             break
           }
         }
         if (collisionFlag) break
-      }
-    }
-    if (dir === 1) {
-      while (true) {
+
         this.nowPos.x++
         if (
           this.nowPos.x === this.goalPos.x &&
@@ -241,19 +250,19 @@ export default class BlockStage extends SceneInit {
           this.nowPos.x = this.stageSize.x - 1
           break
         }
-
+      }
+    }
+    if (dir === 2) {
+      while (true) {
         let collisionFlag = false
         for (const o of this.objPos) {
-          if (this.nowPos.x + 1 === o.x && this.nowPos.y === o.y) {
+          if (this.nowPos.x === o.x && this.nowPos.y + 1 === o.y) {
             collisionFlag = true
             break
           }
         }
         if (collisionFlag) break
-      }
-    }
-    if (dir === 2) {
-      while (true) {
+
         this.nowPos.y++
         if (
           this.nowPos.x === this.goalPos.x &&
@@ -266,19 +275,19 @@ export default class BlockStage extends SceneInit {
           this.nowPos.y = this.stageSize.y - 1
           break
         }
-
+      }
+    }
+    if (dir === 3) {
+      while (true) {
         let collisionFlag = false
         for (const o of this.objPos) {
-          if (this.nowPos.x === o.x && this.nowPos.y + 1 === o.y) {
+          if (this.nowPos.x - 1 === o.x && this.nowPos.y === o.y) {
             collisionFlag = true
             break
           }
         }
         if (collisionFlag) break
-      }
-    }
-    if (dir === 3) {
-      while (true) {
+
         this.nowPos.x--
         if (
           this.nowPos.x === this.goalPos.x &&
@@ -291,15 +300,6 @@ export default class BlockStage extends SceneInit {
           this.nowPos.x = 0
           break
         }
-
-        let collisionFlag = false
-        for (const o of this.objPos) {
-          if (this.nowPos.x - 1 === o.x && this.nowPos.y === o.y) {
-            collisionFlag = true
-            break
-          }
-        }
-        if (collisionFlag) break
       }
     }
   }
